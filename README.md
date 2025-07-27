@@ -1,7 +1,7 @@
 # MicroHeadRenderer
 A small C# web API to grab a skin from any Minecraft backend and render its head with its hat layer. 
 
-Should work with any implementation of Mojang's account and auth backend, but it was designed for Drasl.  
+Should work with any implementation of Mojang's session server and services API, but it was designed for Drasl.  
 
 Not very flexible and not very organized, but it gets the job done for what I needed (Head icons for a Discord bridge)
 
