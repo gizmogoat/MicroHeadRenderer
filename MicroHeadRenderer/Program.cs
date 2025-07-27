@@ -19,24 +19,30 @@ public class Server
         
         WebApplication app = builder.Build();
 
-        app.MapGet("/avatar/{id}.png", async context =>
+        app.MapGet("/avatar/{playerToGetHead}.png", async context =>
         {
             try
             {
-                var id = context.Request.RouteValues["id"]?.ToString();
-            
-                // fetch player info from session server
-                var playerUrl = $"{_settingsHelper.Settings.SessionServer}/session/minecraft/profile/{id}";
+                string playerToGetHead = context.Request.RouteValues["playerToGetHead"]?.ToString();
                 using HttpClient httpClient = new HttpClient();
-                var json = await httpClient.GetStringAsync(playerUrl);
-                Console.WriteLine("player profile: " + json);
+
+                if (!Utils.IsUUID(playerToGetHead))
+                {
+                    string playerLookupJson = await httpClient.GetStringAsync($"{_settingsHelper.Settings.ServicesServer}/minecraft/profile/lookup/name/{playerToGetHead}");
+                    UUIDLookup playerLookup = JsonConvert.DeserializeObject<UUIDLookup>(playerLookupJson);
+                    playerToGetHead = playerLookup.id;
+                }
+                
+                // fetch player info from session server
+                string playerProfileUrl = $"{_settingsHelper.Settings.SessionServer}/session/minecraft/profile/{playerToGetHead}";
+                string playerProfileJson = await httpClient.GetStringAsync(playerProfileUrl);
                 
                 // deserialize so we can actually work w/ it
-                var playerObj = JsonConvert.DeserializeObject<PlayerProfile>(json);
-                var textureObj = JsonConvert.DeserializeObject<PlayerTextures>(System.Text.Encoding.UTF8.GetString
-                    (Convert.FromBase64String(playerObj.properties
+                PlayerProfile playerProfileObj = JsonConvert.DeserializeObject<PlayerProfile>(playerProfileJson);
+                PlayerTextures playerTextureObj = JsonConvert.DeserializeObject<PlayerTextures>(System.Text.Encoding.UTF8.GetString
+                    (Convert.FromBase64String(playerProfileObj.properties
                         .First(prop => prop.name == "textures").value)));
-                var skinUrl = textureObj.textures.SKIN.url;
+                var skinUrl = playerTextureObj.textures.SKIN.url;
                 
                 // load image and manipulate
                 await using Stream imageStream = await httpClient.GetStreamAsync(skinUrl);
