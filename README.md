@@ -7,7 +7,9 @@ Not very flexible and not very organized, but it gets the job done for what I ne
 
 ## Config
 ``SessionServer``: Session server to pull the Minecraft profile from. On official Mojang servers this should be ``https://sessionserver.mojang.com/``
+
 ``ServicesServer``: "Services" API to use in the case that a username is provided and not a UUID. On Drasl this should be the same domain, but on i.e. official Mojang servers it should be ``https://api.minecraftservices.com``
+
 ``Port``: Port to host the MicroHeadRenderer on.
 
 ## Usage
